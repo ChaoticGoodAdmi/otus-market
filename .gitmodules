@@ -1,0 +1,9 @@
+[submodule "order"]
+	path = order
+	url = https://github.com/ChaoticGoodAdmi/otus-market-order.git
+[submodule "notification"]
+	path = notification
+	url = https://github.com/ChaoticGoodAdmi/otus-market-notification.git
+[submodule "billing"]
+	path = billing
+	url = https://github.com/ChaoticGoodAdmi/otus-market-billing.git
