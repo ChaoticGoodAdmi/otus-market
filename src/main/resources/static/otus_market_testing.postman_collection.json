@@ -1,0 +1,607 @@
+{
+	"info": {
+		"_postman_id": "214edf86-04f2-4baa-a299-475dc1c2e36d",
+		"name": "Otus Market Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12899390"
+	},
+	"item": [
+		{
+			"name": "01. Create Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"accountNumber\", jsonData.accountNumber);\r",
+							"pm.test(\"AccountNumber сохранен в переменную\", function () {\r",
+							"    pm.expect(pm.environment.get(\"accountNumber\")).to.eql(jsonData.accountNumber);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"testUser\",\r\n    \"firstName\": \"Kirill\",\r\n    \"lastName\": \"Ushakov\",\r\n    \"email\": \"mmm@email.ru\",\r\n    \"phoneNumber\": \"79101231234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}/accounts?userId=testUser",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "testUser"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02. Deposit on Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Средства успешно добавлены на счет\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(jsonData.balance).to.eql(150);\r",
+							"});\r",
+							"pm.environment.set(\"amountAfterDeposit\", jsonData.balance);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/accounts/{{accountNumber}}/deposit?amount=150",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"{{accountNumber}}",
+						"deposit"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": "150"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03. Create Order #1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Проверка значения status\", function () {\r",
+							"    pm.expect(jsonData.status).to.eql(\"CREATED\");\r",
+							"});\r",
+							"pm.environment.set(\"order1Id\", jsonData.id);\r",
+							"pm.test(\"ID сохранен в переменную order1Id\", function () {\r",
+							"    pm.expect(pm.environment.get(\"order1Id\")).to.eql(jsonData.id);\r",
+							"});\r",
+							"pm.environment.set(\"order1TotalPrice\", jsonData.totalPrice);\r",
+							"pm.test(\"TotalPrice сохранен в переменную order1TotalPrice\", function () {\r",
+							"    pm.expect(pm.environment.get(\"order1TotalPrice\")).to.eql(jsonData.totalPrice);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\": \"testUser\",\r\n  \"email\": \"user@email.com\",\r\n  \"items\": [\r\n    {\r\n      \"productId\": \"Keyboard\",\r\n      \"quantity\": 1\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}/orders",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04. Pay for Order #1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountNumber\": \"{{accountNumber}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}/orders/{{order1Id}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"orders",
+						"{{order1Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05. Get Account After Payment for Order #1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"var amountAfterDeposit = Number(pm.environment.get(\"amountAfterDeposit\"));\r",
+							"var order1TotalPrice = Number(pm.environment.get(\"order1TotalPrice\"));\r",
+							"var expectedBalance = amountAfterDeposit - order1TotalPrice;\r",
+							"pm.test(\"Проверка значения balance\", function () {\r",
+							"    pm.expect(jsonData.balance).to.eql(expectedBalance);\r",
+							"});\r",
+							"pm.environment.set(\"totalBalanceAfterPayment\", jsonData.balance);\r",
+							"pm.test(\"Баланс после первой покупки сохранен в переменную totalBalanceAfterPayment\", function () {\r",
+							"    pm.expect(pm.environment.get(\"totalBalanceAfterPayment\")).to.eql(jsonData.balance);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/accounts/{{accountNumber}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"{{accountNumber}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06a. Get Order Notifications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Всего создано 2 сообщения\", function () {\r",
+							"    pm.expect(jsonData).to.be.an(\"array\").that.has.lengthOf(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Первое сообщение о создании заказа корректно\", function () {\r",
+							"    pm.expect(jsonData[0]).to.deep.include({\r",
+							"        status: \"CREATED\",\r",
+							"        eventType: \"ORDER_CREATED\"\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Второе сообщение об обновлении заказа корректно\", function () {\r",
+							"    pm.expect(jsonData[1]).to.deep.include({\r",
+							"        status: \"PAID\",\r",
+							"        eventType: \"ORDER_STATUS_UPDATED\"\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/notifications/orders",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"notifications",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06b. Get Billing Notifications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Всего создано 2 сообщения\", function () {\r",
+							"    pm.expect(jsonData).to.be.an(\"array\").that.has.lengthOf(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Первое сообщение о пополнении счета корректно\", function () {\r",
+							"    pm.expect(jsonData[0]).to.deep.include({\r",
+							"        transactionType: \"DEPOSIT\"\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Второе сообщение о списании со счета корректно\", function () {\r",
+							"    pm.expect(jsonData[1]).to.deep.include({\r",
+							"        transactionType: \"WITHDRAW\"\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/notifications/billings",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"notifications",
+						"billings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07. Create Order #2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Проверка значения status\", function () {\r",
+							"    pm.expect(jsonData.status).to.eql(\"CREATED\");\r",
+							"});\r",
+							"pm.environment.set(\"order2Id\", jsonData.id);\r",
+							"pm.test(\"ID сохранен в переменную order2Id\", function () {\r",
+							"    pm.expect(pm.environment.get(\"order2Id\")).to.eql(jsonData.id);\r",
+							"});\r",
+							"pm.environment.set(\"order2TotalPrice\", jsonData.totalPrice);\r",
+							"pm.test(\"TotalPrice сохранен в переменную order2TotalPrice\", function () {\r",
+							"    pm.expect(pm.environment.get(\"order2TotalPrice\")).to.eql(jsonData.totalPrice);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\": \"testUser\",\r\n  \"email\": \"user@email.com\",\r\n  \"items\": [\r\n    {\r\n      \"productId\": \"Mouse\",\r\n      \"quantity\": 2\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}/orders",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08. Pay for Order #2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 500\", function () {\r",
+							"    pm.response.to.have.status(500);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Проверка сообщения об ошибке\", function () {\r",
+							"    pm.expect(jsonData.message).to.include(\"Insufficient funds\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountNumber\": \"{{accountNumber}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}/orders/{{order2Id}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"orders",
+						"{{order2Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09. Get Account After Payment for Order #2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"var balanceAfterPayment = Number(pm.environment.get(\"totalBalanceAfterPayment\"));\r",
+							"var balanceNow = jsonData.balance;\r",
+							"pm.test(\"Баланс не изменился после неудачной покупки\", function () {\r",
+							"    pm.expect(balanceAfterPayment).to.eql(balanceNow);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/accounts/{{accountNumber}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"{{accountNumber}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10a. Get Order Notifications Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Всего создано 3 сообщения\", function () {\r",
+							"    pm.expect(jsonData).to.be.an(\"array\").that.has.lengthOf(3);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Первое сообщение о создании заказа корректно\", function () {\r",
+							"    pm.expect(jsonData[0]).to.deep.include({\r",
+							"        status: \"CREATED\",\r",
+							"        eventType: \"ORDER_CREATED\"\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Второе сообщение о создании заказа корректно\", function () {\r",
+							"    pm.expect(jsonData[1]).to.deep.include({\r",
+							"        status: \"PAID\",\r",
+							"        eventType: \"ORDER_STATUS_UPDATED\"\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Третье сообщение о создании заказа корректно\", function () {\r",
+							"    pm.expect(jsonData[2]).to.deep.include({\r",
+							"        status: \"CREATED\",\r",
+							"        eventType: \"ORDER_CREATED\"\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/notifications/orders",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"notifications",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10b. Get Billing Notifications 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус ответа - 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Всего создано 3 сообщения\", function () {\r",
+							"    pm.expect(jsonData).to.be.an(\"array\").that.has.lengthOf(3);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Первое сообщение о пополнении счета корректно\", function () {\r",
+							"    pm.expect(jsonData[0]).to.deep.include({\r",
+							"        transactionType: \"DEPOSIT\"\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Второе сообщение о списании со счета корректно\", function () {\r",
+							"    pm.expect(jsonData[1]).to.deep.include({\r",
+							"        transactionType: \"WITHDRAW\"\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Третьем сообщение о неудачном списании со счета корректно\", function () {\r",
+							"    pm.expect(jsonData[2]).to.deep.include({\r",
+							"        transactionType: \"INSUFFICIENT_FUNDS\"\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/notifications/billings",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"notifications",
+						"billings"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
